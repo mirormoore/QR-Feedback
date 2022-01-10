@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "ih67gwMjmuph9K1cu1hWaLm+5sBYHT0/CKub38PwlAx9EvLyQ0vAVvnv2D7XbHDjB+ESSLyS1g6bxEmA8mwuUA==",
+  "success": true,
+  "projectFilePath": "/Users/richmooremiro/Projects/Miro.WebSockets/Miro.WebSockets/Miro.WebSockets.csproj",
+  "expectedPackageFiles": [
+    "/Users/richmooremiro/.nuget/packages/jquery/1.6.4/jquery.1.6.4.nupkg.sha512",
+    "/Users/richmooremiro/.nuget/packages/microsoft.aspnet.signalr.js/2.4.2/microsoft.aspnet.signalr.js.2.4.2.nupkg.sha512",
+    "/Users/richmooremiro/.nuget/packages/microsoft.netcore.platforms/3.1.0/microsoft.netcore.platforms.3.1.0.nupkg.sha512",
+    "/Users/richmooremiro/.nuget/packages/microsoft.win32.systemevents/4.7.0/microsoft.win32.systemevents.4.7.0.nupkg.sha512",
+    "/Users/richmooremiro/.nuget/packages/qrcoder/1.4.1/qrcoder.1.4.1.nupkg.sha512",
+    "/Users/richmooremiro/.nuget/packages/system.drawing.common/4.7.0/system.drawing.common.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

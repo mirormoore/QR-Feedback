@@ -1,0 +1,153 @@
+﻿@model Byte[]
+@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+
+    <script>
+
+        miro.onReady(async () => {
+
+            
+
+            const isAuthorized = await miro.isAuthorized();
+
+            if (isAuthorized) {
+
+                miro.addListener(miro.enums.event.DATA_BROADCASTED, dataBroadcast);
+
+                document.getElementById("dimmer").style.display = "none";
+
+                document.getElementById("auth").style.display = "none";
+                document.getElementById("start").style.display = "block";
+
+                document.getElementById("main").style.display = "block";
+
+            } else {
+
+                document.getElementById("dimmer").style.display = "none";
+
+                document.getElementById("auth").style.display = "block";
+                document.getElementById("start").style.display = "none";
+
+                document.getElementById("main").style.display = "block";
+
+            }
+
+        });
+
+        function requestAuth() {
+
+            miro.requestAuthorization();
+
+        }
+
+        function getCode() {
+
+            miro.broadcastData({
+                QR: 'Active'
+            });
+
+
+        }
+
+        async function dataBroadcast(event) {
+
+            console.log(event.type);
+
+            if (event.type == "DATA_BROADCASTED") {
+                console.log("we have a broadcast");
+            }
+
+            console.log("Broadcast Recieve: " + event.data.conId);
+
+            if (event.data.conId != null) {
+             
+                fetch("/qr/Session/Start", {
+                    "method": "POST",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": "{\"Code\":\"" + event.data.conId + "\"}"
+                })
+                    .then(response => response.blob())
+                    .then(imageBlob => {
+                        const imageObjectURL = URL.createObjectURL(imageBlob);
+                        console.log(imageObjectURL);
+                        document.getElementById("qrCode").src = imageObjectURL;
+                        document.getElementById("qr").style.display = "block";
+                        document.getElementById("main").style.display = "none";
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+
+            }
+        }
+
+        async function createQRFrame() {
+
+            await miro.board.widgets.create({
+                "type": "frame",
+                "title": "QR Participation",
+                "width": 300,
+                "height": 300
+            })
+
+        }
+
+
+    </script>
+    <link rel="stylesheet" href="../css/semantic.min.css">
+    <title>QR Session</title>
+</head>
+<body>
+
+    @{
+        if (Model != null)
+        {
+            <h3>QR Code Successfully Generated</h3>
+            <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model))" />
+        }
+        else
+        {
+            <div class="ui active inverted dimmer" id="dimmer">
+                <div class="ui text loader">Loading</div>
+            </div>
+            <div id="main" class="ui very padded text container basic segment center aligned">
+                <h2 class="ui header">Start a new QR Session?</h2>
+                <p>This feature allows anonymous guests to dynamically create stickies on this board.</p>
+                <p>After clicking start you will be presented with a QR code to share for this session.</p>
+                <div id="start" style="display:none">
+                    <button class="ui green button" onclick="getCode();">
+                        Start Session / Show QR
+                    </button>
+                    <button class="ui blue button" style="margin-top:10px;" onclick="createQRFrame()">
+                        Create QR Frame
+                    </button>
+                </div>
+                <div id="auth">
+                    <button class="ui grey button" onclick="requestAuth();">
+                        Authorise this Application First
+                    </button>
+                </div>
+            </div>
+
+            <div id="qr" style="display:none;" class="ui very padded text container basic segment center aligned">
+                <img src="" id="qrCode" width="250" height="250" style="text-align:center;" />
+                <p>Please scan the following QR code to add content to this board</p>
+            </div>
+        }
+    }
+
+
+</body>
+</html>

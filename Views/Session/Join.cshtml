@@ -1,0 +1,140 @@
+﻿
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="../css/semantic.min.css">
+    <script src="../js/signalr/dist/browser/signalr.js"></script>
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl("/qr/miroHub").build();
+
+
+        connection.start().then(function () {
+            console.log("Connected");
+
+            connection.invoke('BoardConnected', getParameterByName("code"))
+                .then(function (value) {
+                    if (value == true) {
+                        console.log("Good Link");
+
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("main").style.display = "block";
+
+                    } else {
+                        console.log("Bad Link");
+
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("errorLink").style.display = "block";
+                    }
+
+                });
+
+
+        }).catch(function (err) {
+
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("error").style.display = "block";
+            return console.error(err.toString());
+
+        });
+
+        function addSticky() {
+
+            document.getElementById("errorsticky").style.display = "none";
+
+            var value = document.getElementById("txtSticker").value;
+
+            document.getElementById("txtSticker").value = "";
+
+            var clientID = getParameterByName("code");
+
+            console.log("Value: " + value + " Client: " + clientID);
+
+            connection.invoke("SendSticky", value, clientID).catch(function (err) {
+                document.getElementById("txtSticker").value = value;
+                document.getElementById("errorsticky").style.display = "block";
+                return console.error(err.toString());
+            });
+
+        }
+
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+    </script>
+    <title>QR Session for Board</title>
+</head>
+<body>
+
+    <div class="ui active inverted dimmer" id="loader">
+        <div class="ui text loader">Establishing Connection</div>
+    </div>
+
+    <div class="ui negative message" id="error" style="display:none; margin-left:10px; margin-right:10px;">
+        <div class="header">
+            Connection Error
+        </div>
+        <p>
+            Sorry, there was an issue establishing a connection.  <br />Please reload this page to try again.
+        </p>
+    </div>
+
+    <div class="ui negative message" id="errorLink" style="display:none; margin-left:10px; margin-right:10px;">
+        <div class="header">
+            Bad Link
+        </div>
+        <p>
+            It appears the user that has launched the QR Participation app has disconnected.  <br />Please scan a new QR Code.
+        </p>
+    </div>
+
+    <div class="ui negative message" id="errorConnection" style="display:none; margin-left:10px; margin-right:10px;">
+        <div class="header">
+            Miro Connection Lost
+        </div>
+        <p>
+            It appears the user that has launched the QR Participation app has disconnected.  <br />Please scan a new QR Code.
+        </p>
+    </div>
+
+    <div id="main" class="ui very padded text container basic segment center aligned" style="display:none;">
+        <h2 class="ui header">Send a Sticky</h2>
+        <p>This feature allows anonymous guests to dynamically create stickies on a Miro board.</p>
+        <p>Please complete the form below and press Send Sticky.</p>
+
+        <div class="ui negative message" id="errorsticky" style="display:none; margin-left:10px; margin-right:10px;">
+            <div class="header">
+                Error
+            </div>
+            <p>
+                Sorry, there was an issue sending your sticky.  <br /><br />Please try again.
+            </p>
+        </div>
+
+        <div>
+            <div class="ui form fluid big center" style="text-align:center;">
+                <textarea autofocus rows="5" id="txtSticker" placeholder="Your text here..."></textarea>
+            </div>
+        </div>
+        <div>
+            <button class="ui blue button" style="margin-top:15px;" onclick="addSticky();">
+                Send Sticky
+            </button>
+        </div>
+
+
+
+    </div>
+
+
+
+</body>
+</html>
